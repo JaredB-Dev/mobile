@@ -1,28 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import {
-  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonSearchbar, IonButton, IonIcon,
-  IonList, IonListHeader, IonLabel, IonItemSliding, IonItem, IonItemOptions, IonItemOption,
-  IonModal, IonSelect, IonSelectOption, IonInput, IonButtons, IonAlert, IonBadge,
-} from '@ionic/react';
-import { filterOutline, close, createOutline, trashOutline } from 'ionicons/icons';
+import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonAlert } from '@ionic/react';
 import { Transaction } from '../models/Transaction';
-import { CATEGORIAS } from '../data/categorias';
-import { getIcon } from '../utils/iconMap';
 import { TransactionService } from '../services/TransactionService';
 import { useTransactionsContext } from '../context/TransactionsContext';
-
-interface Filtros {
-  categoria: string | null;
-  montoMin: string;
-  montoMax: string;
-  fechaDesde: string | null;
-  fechaHasta: string | null;
-}
-
-const filtrosVacios: Filtros = { categoria: null, montoMin: '', montoMax: '', fechaDesde: null, fechaHasta: null };
-
-const formatMes = (isoString: string) => new Date(isoString).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-const formatDia = (isoString: string) => new Date(isoString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+import { formatMes } from '../utils/dateFormat';
+import SearchToolbar from '../components/historial/SearchToolbar';
+import FiltrosModal, { Filtros, filtrosVacios } from '../components/historial/FiltrosModal';
+import TransactionListGroup from '../components/historial/TransactionListGroup';
 
 const Historial: React.FC = () => {
   const { version, refresh } = useTransactionsContext();
@@ -81,24 +65,12 @@ const Historial: React.FC = () => {
         <IonToolbar>
           <IonTitle>Historial</IonTitle>
         </IonToolbar>
-        <IonToolbar>
-          <IonSearchbar
-            value={busqueda}
-            onIonInput={(e) => setBusqueda(e.detail.value ?? '')}
-            placeholder="Buscar por descripción o categoría"
-            debounce={300}
-          />
-          <IonButtons slot="end" style={{ marginRight: '8px' }}>
-            <IonButton onClick={() => setShowFiltros(true)}>
-              <IonIcon slot="icon-only" icon={filterOutline} />
-              {filtrosActivos > 0 && (
-                <IonBadge color="danger" style={{ position: 'absolute', top: 0, right: 0, fontSize: '0.6rem' }}>
-                  {filtrosActivos}
-                </IonBadge>
-              )}
-            </IonButton>
-          </IonButtons>
-        </IonToolbar>
+        <SearchToolbar
+          busqueda={busqueda}
+          onBusquedaChange={setBusqueda}
+          filtrosActivos={filtrosActivos}
+          onAbrirFiltros={() => setShowFiltros(true)}
+        />
       </IonHeader>
 
       <IonContent>
@@ -109,106 +81,24 @@ const Historial: React.FC = () => {
         )}
 
         {grupos.map(([mes, items]) => (
-          <IonList key={mes} inset>
-            <IonListHeader>
-              <IonLabel style={{ textTransform: 'capitalize', fontWeight: 'bold' }}>{mes}</IonLabel>
-            </IonListHeader>
-
-            {items.map((t) => {
-              const esIngreso = t.tipo === 'ingreso';
-              return (
-                <IonItemSliding key={t.id}>
-                  <IonItem button detail={false}>
-                    <div
-                      slot="start"
-                      style={{
-                        width: '36px', height: '36px', borderRadius: '50%',
-                        background: esIngreso ? 'var(--ion-color-success-tint)' : 'var(--ion-color-danger-tint)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}
-                    >
-                      <IonIcon icon={getIcon(t.icono)} style={{ fontSize: '17px', color: 'var(--ion-color-light)' }} />
-                    </div>
-                    <IonLabel>
-                      <h3>{t.categoria}</h3>
-                      <p>{t.descripcion}</p>
-                    </IonLabel>
-                    <div slot="end" style={{ textAlign: 'right' }}>
-                      <div style={{ fontWeight: 'bold', color: esIngreso ? 'var(--ion-color-success)' : 'var(--ion-color-danger)' }}>
-                        {esIngreso ? '+' : '-'}${t.monto.toFixed(2)}
-                      </div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--ion-color-medium)' }}>{formatDia(t.fecha)}</div>
-                    </div>
-                  </IonItem>
-
-                  <IonItemOptions side="end">
-                    <IonItemOption color="primary" onClick={() => console.log('Editar', t.id)}>
-                      <IonIcon slot="icon-only" icon={createOutline} />
-                    </IonItemOption>
-                    <IonItemOption color="danger" onClick={() => setTransaccionAEliminar(t.id)}>
-                      <IonIcon slot="icon-only" icon={trashOutline} />
-                    </IonItemOption>
-                  </IonItemOptions>
-                </IonItemSliding>
-              );
-            })}
-          </IonList>
+          <TransactionListGroup
+            key={mes}
+            mes={mes}
+            items={items}
+            onEditar={(id) => console.log('Editar', id)}
+            onEliminar={(id) => setTransaccionAEliminar(id)}
+          />
         ))}
 
         <div style={{ height: '24px' }}></div>
       </IonContent>
 
-      <IonModal isOpen={showFiltros} onDidDismiss={() => setShowFiltros(false)} initialBreakpoint={0.6} breakpoints={[0, 0.6, 0.9]}>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>Filtros</IonTitle>
-            <IonButtons slot="end">
-              <IonButton onClick={() => setShowFiltros(false)}>
-                <IonIcon icon={close} />
-              </IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          <IonItem>
-            <IonSelect
-              label="Categoría"
-              placeholder="Todas"
-              value={filtros.categoria}
-              onIonChange={(e) => setFiltros((f) => ({ ...f, categoria: e.detail.value }))}
-            >
-              {CATEGORIAS.map((c) => (
-                <IonSelectOption key={c.nombre} value={c.nombre}>{c.nombre}</IonSelectOption>
-              ))}
-            </IonSelect>
-          </IonItem>
-
-          <IonItem>
-            <IonInput label="Monto mínimo" type="number" placeholder="0" value={filtros.montoMin}
-              onIonInput={(e) => setFiltros((f) => ({ ...f, montoMin: e.detail.value ?? '' }))} />
-          </IonItem>
-
-          <IonItem>
-            <IonInput label="Monto máximo" type="number" placeholder="Sin límite" value={filtros.montoMax}
-              onIonInput={(e) => setFiltros((f) => ({ ...f, montoMax: e.detail.value ?? '' }))} />
-          </IonItem>
-
-          <IonItem>
-            <IonInput label="Desde" type="date" value={filtros.fechaDesde ?? ''}
-              onIonInput={(e) => setFiltros((f) => ({ ...f, fechaDesde: e.detail.value || null }))} />
-          </IonItem>
-
-          <IonItem lines="none">
-            <IonInput label="Hasta" type="date" value={filtros.fechaHasta ?? ''}
-              onIonInput={(e) => setFiltros((f) => ({ ...f, fechaHasta: e.detail.value || null }))} />
-          </IonItem>
-
-          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-            <IonButton fill="outline" expand="block" style={{ flex: 1 }} onClick={() => setFiltros(filtrosVacios)}>Limpiar</IonButton>
-            <IonButton expand="block" style={{ flex: 1 }} onClick={() => setShowFiltros(false)}>Aplicar</IonButton>
-          </div>
-        </IonContent>
-      </IonModal>
+      <FiltrosModal
+        isOpen={showFiltros}
+        filtros={filtros}
+        onClose={() => setShowFiltros(false)}
+        onFiltrosChange={setFiltros}
+      />
 
       <IonAlert
         isOpen={transaccionAEliminar !== null}

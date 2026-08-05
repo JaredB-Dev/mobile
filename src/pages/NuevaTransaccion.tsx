@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import {
-  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon,
-  IonSegment, IonSegmentButton, IonLabel, IonItem, IonInput, IonSelect, IonSelectOption,
-  IonTextarea, IonToast,
+  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon, IonToast,
 } from '@ionic/react';
-import { close, cashOutline, cardOutline } from 'ionicons/icons';
+import { close } from 'ionicons/icons';
 import { getCategoriasPorTipo } from '../data/categorias';
 import { TransactionService } from '../services/TransactionService';
 import { useTransactionsContext } from '../context/TransactionsContext';
 import { Transaction } from '../models/Transaction';
+import TipoSelector from '../components/nuevaTransaccion/TipoSelector';
+import TransaccionForm from '../components/nuevaTransaccion/TransaccionForm';
 
 interface NuevaTransaccionProps {
   onClose: () => void;
@@ -63,7 +63,7 @@ const NuevaTransaccion: React.FC<NuevaTransaccionProps> = ({ onClose }) => {
     setGuardando(true);
     try {
       await TransactionService.insert(nuevaTransaccion);
-      refresh(); // avisa a Inicio, Historial y Analíticas que hay datos nuevos
+      refresh();
       onClose();
     } catch (e) {
       console.error(e);
@@ -86,64 +86,19 @@ const NuevaTransaccion: React.FC<NuevaTransaccionProps> = ({ onClose }) => {
       </IonHeader>
 
       <IonContent className="ion-padding">
-        <IonSegment value={tipo} onIonChange={(e) => setTipo(e.detail.value as 'ingreso' | 'gasto')}>
-          <IonSegmentButton value="gasto">
-            <IonIcon icon={cardOutline} />
-            <IonLabel>Gasto</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="ingreso">
-            <IonIcon icon={cashOutline} />
-            <IonLabel>Ingreso</IonLabel>
-          </IonSegmentButton>
-        </IonSegment>
+        <TipoSelector tipo={tipo} onTipoChange={setTipo} />
 
-        <IonItem style={{ marginTop: '16px' }}>
-          <IonInput
-            label="Monto"
-            labelPlacement="stacked"
-            type="number"
-            placeholder="0.00"
-            value={monto}
-            onIonInput={(e) => setMonto(e.detail.value ?? '')}
-          />
-        </IonItem>
-
-        <IonItem>
-          <IonSelect
-            label="Categoría"
-            labelPlacement="stacked"
-            placeholder="Selecciona una categoría"
-            value={categoria}
-            onIonChange={(e) => setCategoria(e.detail.value)}
-          >
-            {categoriasDisponibles.map((c) => (
-              <IonSelectOption key={c.nombre} value={c.nombre}>
-                {c.nombre}
-              </IonSelectOption>
-            ))}
-          </IonSelect>
-        </IonItem>
-
-        <IonItem>
-          <IonTextarea
-            label="Descripción (opcional)"
-            labelPlacement="stacked"
-            placeholder="Ej. Almuerzo con amigos"
-            value={descripcion}
-            onIonInput={(e) => setDescripcion(e.detail.value ?? '')}
-            autoGrow
-          />
-        </IonItem>
-
-        <IonItem lines="none">
-          <IonInput
-            label="Fecha"
-            labelPlacement="stacked"
-            type="date"
-            value={fecha}
-            onIonInput={(e) => setFecha(e.detail.value ?? hoyISO())}
-          />
-        </IonItem>
+        <TransaccionForm
+          monto={monto}
+          categoria={categoria}
+          categoriasDisponibles={categoriasDisponibles}
+          descripcion={descripcion}
+          fecha={fecha}
+          onMontoChange={setMonto}
+          onCategoriaChange={setCategoria}
+          onDescripcionChange={setDescripcion}
+          onFechaChange={setFecha}
+        />
 
         <IonButton expand="block" style={{ marginTop: '24px' }} onClick={handleGuardar} disabled={guardando}>
           {guardando ? 'Guardando...' : 'Guardar transacción'}

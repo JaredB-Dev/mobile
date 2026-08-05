@@ -22,11 +22,11 @@ import {
   documentTextOutline,
 } from 'ionicons/icons';
 import { useTheme } from '../hooks/useTheme';
-import { Transaction } from '../models/Transaction';
 import Papa, { ParseResult } from 'papaparse';
 import { CsvTransaction } from '../models/CSVTransactions';
 import { useTransactionsContext } from '../context/TransactionsContext';
 import { TransactionService } from '../services/TransactionService';
+import { parsearTransacciones } from '../utils/csvImport';
 
 const Configuracion: React.FC = () => {
   const { refresh } = useTransactionsContext();
@@ -154,34 +154,6 @@ const Configuracion: React.FC = () => {
       />
     </IonPage>
   );
-};
-
-// Convierte filas crudas del CSV a objetos Transaction, validando el formato
-const parsearTransacciones = (filas: any[]): Transaction[] => {
-  return filas.map((fila, index) => {
-    const tipo = fila.tipo?.trim().toLowerCase();
-    const monto = Number(fila.monto);
-
-    if (tipo !== 'ingreso' && tipo !== 'gasto') {
-      throw new Error(`Fila ${index + 1}: tipo inválido "${fila.tipo}"`);
-    }
-    if (isNaN(monto)) {
-      throw new Error(`Fila ${index + 1}: monto inválido "${fila.monto}"`);
-    }
-    if (!fila.fecha) {
-      throw new Error(`Fila ${index + 1}: falta la fecha`);
-    }
-
-    return {
-      id: `csv-${Date.now()}-${index}`,
-      tipo,
-      monto,
-      categoria: fila.categoria?.trim() || 'Otro',
-      descripcion: fila.descripcion?.trim() || '',
-      icono: 'ellipsisHorizontal',
-      fecha: new Date(fila.fecha).toISOString(),
-    };
-  });
 };
 
 export default Configuracion;
