@@ -1,45 +1,34 @@
+import { useState, useEffect } from 'react';
 import {
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
-  IonFab,
-  IonFabButton,
-  IonIcon,
+  IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol,
+  IonCard, IonCardHeader, IonCardTitle, IonCardContent,
 } from '@ionic/react';
-import { add } from 'ionicons/icons';
 import TrendChart from '../components/inicio/TrendChart';
 import RecentTransactions from '../components/inicio/RecentTransactions';
 import { Transaction } from '../models/Transaction';
-
-// --- MOCK DATA: reemplazar luego por datos reales de SQLite ---
-const mockTrendData = Array.from({ length: 30 }, (_, i) => {
-  const date = new Date();
-  date.setDate(date.getDate() - (29 - i));
-  return {
-    fecha: date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' }),
-    ingresos: Math.round(Math.random() * 100),
-    gastos: Math.round(Math.random() * 80),
-  };
-});
-
-const mockRecentTransactions: Transaction[] = [
-  { id: '1', tipo: 'gasto', monto: 45.5, categoria: 'Comida', icono: 'restaurant', descripcion: 'Almuerzo', fecha: new Date().toISOString() },
-  { id: '2', tipo: 'ingreso', monto: 500, categoria: 'Salario', icono: 'cash', descripcion: 'Pago quincenal', fecha: new Date().toISOString() },
-  { id: '3', tipo: 'gasto', monto: 12.0, categoria: 'Transporte', icono: 'bus', descripcion: 'Bus', fecha: new Date().toISOString() },
-  { id: '4', tipo: 'gasto', monto: 89.99, categoria: 'Compras', icono: 'bag', descripcion: 'Ropa', fecha: new Date().toISOString() },
-  { id: '5', tipo: 'ingreso', monto: 25, categoria: 'Extra', icono: 'gift', descripcion: 'Venta reciclaje', fecha: new Date().toISOString() },
-];
+import { TransactionService } from '../services/TransactionService';
+import { useTransactionsContext } from '../context/TransactionsContext';
 
 const Inicio: React.FC = () => {
+  const { version } = useTransactionsContext();
+  const [resumen, setResumen] = useState({ balance: 0, ingresos: 0, gastos: 0 });
+  const [trendData, setTrendData] = useState<{ fecha: string; ingresos: number; gastos: number }[]>([]);
+  const [recientes, setRecientes] = useState<Transaction[]>([]);
+
+  useEffect(() => {
+    const cargar = async () => {
+      const [resumenData, tendencia, ultimas] = await Promise.all([
+        TransactionService.getResumen(),
+        TransactionService.getTendencia(30),
+        TransactionService.getRecent(5),
+      ]);
+      setResumen(resumenData);
+      setTrendData(tendencia);
+      setRecientes(ultimas);
+    };
+    cargar();
+  }, [version]);
+
   return (
     <IonPage>
       <IonHeader>
@@ -63,7 +52,7 @@ const Inicio: React.FC = () => {
                   <IonCardTitle>Balance Total</IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                  <h1 style={{ margin: 0, fontWeight: 'bold' }}>$0.00</h1>
+                  <h1 style={{ margin: 0, fontWeight: 'bold' }}>${resumen.balance.toFixed(2)}</h1>
                 </IonCardContent>
               </IonCard>
             </IonCol>
@@ -76,7 +65,7 @@ const Inicio: React.FC = () => {
                   <IonCardTitle style={{ fontSize: '1rem' }}>Ingresos del mes</IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                  <h2 style={{ margin: 0, fontWeight: 'bold' }}>$0.00</h2>
+                  <h2 style={{ margin: 0, fontWeight: 'bold' }}>${resumen.ingresos.toFixed(2)}</h2>
                 </IonCardContent>
               </IonCard>
             </IonCol>
@@ -87,15 +76,15 @@ const Inicio: React.FC = () => {
                   <IonCardTitle style={{ fontSize: '1rem' }}>Gastos del mes</IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                  <h2 style={{ margin: 0, fontWeight: 'bold' }}>$0.00</h2>
+                  <h2 style={{ margin: 0, fontWeight: 'bold' }}>${resumen.gastos.toFixed(2)}</h2>
                 </IonCardContent>
               </IonCard>
             </IonCol>
           </IonRow>
         </IonGrid>
 
-        <TrendChart data={mockTrendData} />
-        <RecentTransactions transactions={mockRecentTransactions} />
+        <TrendChart data={trendData} />
+        <RecentTransactions transactions={recientes} />
 
         <div style={{ height: '24px' }}></div>
       </IonContent>

@@ -12,6 +12,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@capacitor-community/sqlite": "^8.1.0",
     "@capacitor/android": "8.4.2",
     "@capacitor/app": "8.1.1",
     "@capacitor/core": "8.4.2",
@@ -23,12 +24,14 @@
     "@types/react-router": "^5.1.20",
     "@types/react-router-dom": "^5.3.3",
     "ionicons": "^7.4.0",
+    "jeep-sqlite": "^2.8.0",
     "papaparse": "^5.5.4",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-router": "^5.3.4",
     "react-router-dom": "^5.3.4",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "sql.js": "^1.14.1"
   },
   "devDependencies": {
     "@capacitor/cli": "8.4.2",

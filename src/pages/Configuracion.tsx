@@ -25,8 +25,11 @@ import { useTheme } from '../hooks/useTheme';
 import { Transaction } from '../models/Transaction';
 import Papa, { ParseResult } from 'papaparse';
 import { CsvTransaction } from '../models/CSVTransactions';
+import { useTransactionsContext } from '../context/TransactionsContext';
+import { TransactionService } from '../services/TransactionService';
 
 const Configuracion: React.FC = () => {
+  const { refresh } = useTransactionsContext();
   const { isDark, toggleTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,11 +44,10 @@ const Configuracion: React.FC = () => {
     setToast({ show: true, mensaje, color });
   };
 
-  // --- Borrar todos los datos ---
-  const handleBorrarDatos = () => {
-    // Cuando esté SQLite conectado: aquí se ejecutaría DELETE FROM transactions;
-    console.log('Borrando todos los datos...');
+  const handleBorrarDatos = async () => {
+    await TransactionService.deleteAll();
     setShowConfirmBorrar(false);
+    refresh();
     mostrarToast('Todos los datos fueron eliminados', 'success');
   };
 
@@ -59,26 +61,21 @@ const Configuracion: React.FC = () => {
     if (!archivo) return;
 
     Papa.parse<CsvTransaction>(archivo, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (resultado: ParseResult<CsvTransaction>) => {
-            try {
-            const transacciones = parsearTransacciones(resultado.data);
-            console.log('Transacciones importadas:', transacciones);
-            mostrarToast(
-                `${transacciones.length} transacciones importadas correctamente`,
-                'success'
-            );
-            } catch {
-            mostrarToast('El archivo no tiene el formato esperado', 'danger');
-            }
-        },
-        error: () => {
-            mostrarToast('No se pudo leer el archivo', 'danger');
-        },
+      header: true,
+      skipEmptyLines: true,
+      complete: async (resultado: ParseResult<CsvTransaction>) => {
+        try {
+          const transacciones = parsearTransacciones(resultado.data);
+          await TransactionService.insertMany(transacciones);
+          refresh();
+          mostrarToast(`${transacciones.length} transacciones importadas correctamente`, 'success');
+        } catch {
+          mostrarToast('El archivo no tiene el formato esperado', 'danger');
+        }
+      },
+      error: () => mostrarToast('No se pudo leer el archivo', 'danger'),
     });
 
-    // Permite volver a seleccionar el mismo archivo si el usuario lo intenta de nuevo
     e.target.value = '';
   };
 
