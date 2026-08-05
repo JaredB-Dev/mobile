@@ -117,11 +117,11 @@ const Configuracion: React.FC = () => {
 
         {/* Input de archivo oculto, se activa por código */}
         <input
-          ref={fileInputRef}
-          type="file"
-          accept=".csv"
-          style={{ display: 'none' }}
-          onChange={handleArchivoSeleccionado}
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,text/csv,text/comma-separated-values,application/csv,text/plain"
+            style={{ display: 'none' }}
+            onChange={handleArchivoSeleccionado}
         />
 
         <div style={{ padding: '16px', display: 'flex', alignItems: 'flex-start', gap: '8px' }}>

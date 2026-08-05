@@ -79,7 +79,7 @@ ion-tab-bar {
 }
 
 .tab-spacer {
-  flex: 0 0 50px !important;
+  flex: 0 0 70px !important;
   pointer-events: none;
 }
 
