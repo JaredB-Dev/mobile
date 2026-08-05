@@ -1,2 +1,88 @@
 /* For information on how to create your own theme, please refer to:
 http://ionicframework.com/docs/theming/ */
+
+/* Bordes redondeados para toda la app */
+ion-card {
+  --border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+ion-fab-button {
+  --border-radius: 50%;
+}
+
+ion-button {
+  --border-radius: 12px;
+}
+/* Botón central flotante de la tab bar */
+ion-tab-bar {
+  position: relative;
+  overflow: visible;
+  contain: none;
+}
+
+.tab-button-fab {
+  --background: transparent;
+  position: relative;
+  overflow: visible;
+  contain: none;
+  z-index: 1;
+}
+
+.tab-button-fab::part(native) {
+  overflow: visible;
+}
+
+.tab-button-fab .fab-circle {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--ion-color-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+}
+
+.tab-button-fab .fab-circle ion-icon {
+  color: var(--ion-color-light);
+  font-size: 26px;
+}
+
+/* Botón central flotante, superpuesto sobre la tab bar */
+.fab-central {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--ion-color-dark);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  z-index: 20;
+  padding: 0;
+}
+
+.fab-central ion-icon {
+  color: var(--ion-color-light);
+  font-size: 26px;
+}
+
+.tab-spacer {
+  flex: 0 0 50px !important;
+  pointer-events: none;
+}
+
+.custom-tab-bar ion-tab-button::part(native) {
+  --ripple-color: transparent;
+}
