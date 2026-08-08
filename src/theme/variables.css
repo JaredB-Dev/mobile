@@ -112,14 +112,20 @@ ion-tab-bar {
   font-size: 26px;
 }
 
-/* Botón central flotante, superpuesto sobre la tab bar */
+/* Botón central flotante, superpuesto sobre la tab bar.
+   Se centra con left/right + margin auto (en vez de left:50% +
+   transform) porque ese método es más consistente entre
+   dispositivos/WebViews de Android: no depende del cálculo de
+   "mitad del ancho" del viewport, que en algunos equipos varía
+   por el ancho de la barra de gestos/insets del sistema. */
 .fab-central {
   position: fixed;
-  bottom: 18px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  left: env(safe-area-inset-left, 0px);
+  right: env(safe-area-inset-right, 0px);
   width: 56px;
   height: 56px;
+  margin: 0 auto;
   border-radius: 50%;
   background: var(--ion-color-primary);
   border: none;

@@ -35,7 +35,7 @@ const TransactionRow: React.FC<TransactionRowProps> = ({ transaction: t, onClick
         <p>{t.descripcion}</p>
       </IonLabel>
       <div slot="end" style={{ textAlign: 'right' }}>
-        <div style={{ fontWeight: 'bold', color: esIngreso ? 'var(--ion-color-success)' : 'var(--ion-color-danger)' }}>
+        <div style={{ fontSize: '0.95rem', fontWeight: 'bold', color: esIngreso ? 'var(--ion-color-success)' : 'var(--ion-color-danger)' }}>
           {esIngreso ? '+' : '-'}${t.monto.toFixed(2)}
         </div>
         <div style={{ fontSize: '0.7rem', color: 'var(--ion-color-medium)' }}>
