@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import {
   IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonGrid, IonRow, IonCol,
-  IonCard, IonCardHeader, IonCardTitle, IonCardContent,
+  IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonIcon,
 } from '@ionic/react';
+import { arrowUpCircle, arrowDownCircle } from 'ionicons/icons';
 import TrendChart from '../components/inicio/TrendChart';
 import RecentTransactions from '../components/inicio/RecentTransactions';
 import { Transaction } from '../models/Transaction';
@@ -47,12 +48,17 @@ const Inicio: React.FC = () => {
         <IonGrid>
           <IonRow>
             <IonCol size="12">
+              {/* Tarjeta principal: único color llamativo (acento de marca) */}
               <IonCard color="primary">
                 <IonCardHeader>
-                  <IonCardTitle>Balance Total</IonCardTitle>
+                  <IonCardTitle style={{ fontSize: '0.95rem', fontWeight: 500, opacity: 0.9 }}>
+                    Balance Total
+                  </IonCardTitle>
                 </IonCardHeader>
                 <IonCardContent>
-                  <h1 style={{ margin: 0, fontWeight: 'bold' }}>${resumen.balance.toFixed(2)}</h1>
+                  <h1 style={{ margin: 0, fontWeight: 700, fontSize: '2.1rem' }}>
+                    ${resumen.balance.toFixed(2)}
+                  </h1>
                 </IonCardContent>
               </IonCard>
             </IonCol>
@@ -60,23 +66,30 @@ const Inicio: React.FC = () => {
 
           <IonRow>
             <IonCol size="6">
-              <IonCard color="success">
-                <IonCardHeader>
-                  <IonCardTitle style={{ fontSize: '1rem' }}>Ingresos del mes</IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <h2 style={{ margin: 0, fontWeight: 'bold' }}>${resumen.ingresos.toFixed(2)}</h2>
+              {/* Tarjetas neutras: el color queda para el icono y el monto (ingreso/gasto) */}
+              <IonCard>
+                <IonCardContent style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <IonIcon icon={arrowUpCircle} color="success" style={{ fontSize: '1.1rem' }} />
+                    <span style={{ fontSize: '0.85rem', color: 'var(--ion-color-medium)' }}>Ingresos</span>
+                  </div>
+                  <h2 style={{ margin: 0, fontWeight: 700, color: 'var(--ion-color-success)' }}>
+                    ${resumen.ingresos.toFixed(2)}
+                  </h2>
                 </IonCardContent>
               </IonCard>
             </IonCol>
 
             <IonCol size="6">
-              <IonCard color="danger">
-                <IonCardHeader>
-                  <IonCardTitle style={{ fontSize: '1rem' }}>Gastos del mes</IonCardTitle>
-                </IonCardHeader>
-                <IonCardContent>
-                  <h2 style={{ margin: 0, fontWeight: 'bold' }}>${resumen.gastos.toFixed(2)}</h2>
+              <IonCard>
+                <IonCardContent style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <IonIcon icon={arrowDownCircle} color="danger" style={{ fontSize: '1.1rem' }} />
+                    <span style={{ fontSize: '0.85rem', color: 'var(--ion-color-medium)' }}>Gastos</span>
+                  </div>
+                  <h2 style={{ margin: 0, fontWeight: 700, color: 'var(--ion-color-danger)' }}>
+                    ${resumen.gastos.toFixed(2)}
+                  </h2>
                 </IonCardContent>
               </IonCard>
             </IonCol>

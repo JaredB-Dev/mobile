@@ -58,8 +58,8 @@ const TrendChart: React.FC<TrendChartProps> = ({ data }) => {
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
-            <XAxis dataKey="fecha" tick={{ fontSize: 10 }} interval={Math.floor(rango / 5)} />
-            <YAxis tick={{ fontSize: 10 }} />
+            <XAxis dataKey="fecha" tick={{ fontSize: 11 }} interval={Math.floor(rango / 5)} />
+            <YAxis tick={{ fontSize: 11 }} />
             <Tooltip
                 formatter={(value) => {
                     if (typeof value === "number") {

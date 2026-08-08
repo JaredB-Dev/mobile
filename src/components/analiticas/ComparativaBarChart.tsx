@@ -13,8 +13,8 @@ const ComparativaBarChart: React.FC<ComparativaBarChartProps> = ({ comparativa }
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={comparativa} margin={{ top: 10, right: 10, left: -20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" opacity={0.15} vertical={false} />
-            <XAxis dataKey="mes" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 10 }} />
+            <XAxis dataKey="mes" tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 11 }} />
             <Tooltip
               formatter={(value) => (typeof value === 'number' ? `$${value.toFixed(2)}` : value ?? '')}
               labelStyle={{ color: '#333' }}
